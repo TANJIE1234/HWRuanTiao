@@ -9,12 +9,21 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-        List<double[]> dataList = ReadFIie.loadDataFromFile("D:\\IdeaProjects\\HWRuanTiao\\src\\data\\TrainData.txt");
-        double[][] trainData = ReadFIie.getFlavorArrayFromDataList(2, 41, dataList);
-        LinearRegression m = new LinearRegression(trainData,0.00001,1000000);
-        m.printTrainData();
-        m.trainTheta();
-        m.printTheta();
+//        List<double[]> dataList = ReadFIie.loadDataFromFile("D:\\IdeaProjects\\HWRuanTiao\\src\\data\\TrainData.txt");
+        List<double[]> dataList = ReadFIie.loadDataFromFile("F:\\Java\\IdeaProjects\\HWRuanTiao\\src\\data\\TrainData.txt");
+        int key = 0;
+        for (key=4;key<36;key++){
+            double[][] trainData = ReadFIie.getFlavorArrayFromDataList(14 , key, dataList);
+            LinearRegression m = new LinearRegression(trainData,0.001,10000000);
+//            m.printTrainData();
+            m.trainTheta();
+//            m.printTheta();
+            double nextday = 0.0;
+            for (int i=0;i<key+1;i++){
+                nextday = nextday + m.getTheta()[i]*trainData[m.getRow()-1][i+1];
+            }
+            System.out.println("key="+key+" nextday:"+nextday);
+        }
     }
 }
 
@@ -42,6 +51,22 @@ class LinearRegression {
     private int column;//训练数据 列数
 
     private double [] theta;//参数theta
+
+    public double[][] getTrainData() {
+        return trainData;
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public int getColumn() {
+        return column;
+    }
+
+    public double[] getTheta() {
+        return theta;
+    }
 
     private double alpha;//训练步长
     private int iteration;//迭代次数
@@ -182,9 +207,9 @@ class LinearRegression {
 
         for(int k=0;k< (oneRow.length-1);k++)
             result+=theta[k]*oneRow[k];
-        result-=oneRow[oneRow.length-1];
-        result*=oneRow[j];
-        return result;
+            result-=oneRow[oneRow.length-1];
+            result*=oneRow[j];
+            return result;
     }
     private double [] getRow(int i)//从训练数据中取出第i行，i=0，1，2，。。。，（row-1）
     {
