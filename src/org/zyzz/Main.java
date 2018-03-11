@@ -4,11 +4,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
-        LinearRegression m = new LinearRegression("D:\\IdeaProjects\\HWRuanTiao\\src\\org\\zyzz\\trainData",0.0001,1000000);
+        List<double[]> dataList = ReadFIie.loadDataFromFile("D:\\IdeaProjects\\HWRuanTiao\\src\\data\\TrainData.txt");
+        double[][] trainData = ReadFIie.getFlavorArrayFromDataList(2, 41, dataList);
+        LinearRegression m = new LinearRegression(trainData,0.00001,1000000);
         m.printTrainData();
         m.trainTheta();
         m.printTheta();
@@ -77,6 +80,17 @@ class LinearRegression {
         loadTrainDataFromFile(fileName,rowoffile,columnoffile);
     }
 
+    public LinearRegression(double[][] trainData, double alpha, int iteration) {
+        int rowoffile = trainData.length;
+        int columnoffile = trainData[0].length;
+        this.trainData = trainData;
+        this.row = rowoffile;
+        this.column = columnoffile;
+        this.alpha = alpha;
+        this.iteration = iteration;
+        theta = new double[column - 1];
+        initialize_theta();
+    }
     private int getRowNumber(String fileName)
     {
         int count =0;
