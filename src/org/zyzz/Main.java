@@ -1,55 +1,95 @@
 package org.zyzz;
 
+import javax.print.attribute.standard.PrinterLocation;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class Main {
 
-    public static void main(String[] args) {
-//        List<double[]> dataList = ReadFIie.loadDataFromFile("D:\\IdeaProjects\\HWRuanTiao\\src\\data\\TrainData.txt");
-        List<double[]> dataList = ReadFIie.loadDataFromFile("F:\\Java\\IdeaProjects\\HWRuanTiao\\src\\data\\TrainData.txt");
-        int key = 0;
-        for (key=3;key<30;key++){
-            double[][] trainData = ReadFIie.getFlavorArrayFromDataList(14, key, dataList);
-            LinearRegression m = new LinearRegression(trainData,0.00001,100000);
-//            m.printTrainData();
-            m.trainTheta();
-//            m.printTheta();
-            double nextday = 0.0;
-            for (int i=0;i<key+1;i++){
-                nextday = nextday + m.getTheta()[i]*trainData[m.getRow()-1][i+1];
-            }
-            System.out.println("key="+key+" nextday:"+nextday);
+    public static void main(String[] args) throws ParseException {
+        List<int[]> resultList = new ArrayList<>();
+        resultList = predictAll("2015-02-20 00:00:00","2015-02-27 00:00:00");
+        System.out.printf("%10s","\t\t\t\t");
+        System.out.printf("%-10s","sum\t");
+        for (int i=1;i<resultList.get(0).length;i++) {
+            System.out.printf("%10s","day"+i+"\t");
         }
+        System.out.println();
+        int i=0;
+        for (int[] day : resultList) {
+            System.out.printf("%10s","flavor"+(++i)+"\t");
+            for (int flavor : day) {
+                System.out.printf("%10s",flavor+"\t\t");
+            }
+            System.out.println();
+        }
+    }
+
+    public static List<int[]> predictAll(String beginDate, String endDate) throws ParseException {
+        int days = calDaysBetween(beginDate, endDate);
+        int[] result;
+        List<int[]> resultList = new ArrayList<>();
+        for (int i=1;i<16;i++) {
+            result = predict(i, days);
+            resultList.add(result);
+        }
+        return resultList;
+    }
+
+
+    public static int[] predict(int flavor, int days) {
+        int key = 20;
+        List<double[]> dataList = new ArrayList<>();
+        dataList = ReadFIie.loadDataFromFile("D:\\IdeaProjects\\HWRuanTiao\\src\\data\\TrainData.txt");
+        double alpha = 0.0001;
+        int iteration = 200000;
+        double[][] trainData = ReadFIie.getFlavorArrayFromDataList(flavor, key, dataList);
+        LinearRegression m = new LinearRegression(trainData, alpha, iteration);
+        m.trainTheta();
+        double[] history = new double[key + 1];
+        double[] temp = new double[key + 1];
+        double[] result_double = new double[days+1];
+        int[] result_int = new int[days+1];
+        System.arraycopy(trainData[trainData.length - 1], 2, history, 1, key);
+        history[0] = 1.0;
+        for (int i = 1; i < days+1; i++) {
+            for (int j = 0; j < key + 1; j++) {
+                result_double[i] = result_double[i] + m.getTheta()[j] * history[j];
+            }
+            if (result_double[i] < 0) {
+                result_int[i] = 0;
+            } else result_int[i] = (int) Math.round(result_double[i]);
+            temp = history;
+            System.arraycopy(temp, 2, history, 1, key - 1);
+            history[key] = result_double[i];
+        }
+        for (int r : result_int) {
+            result_int[0]=result_int[0]+r;
+        }
+        return result_int;
+    }
+
+    public static int calDaysBetween(String date1, String date2) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar calendar1 = Calendar.getInstance();
+        Calendar calendar2 = Calendar.getInstance();
+        calendar1.setTime(sdf.parse(date1));
+        calendar2.setTime(sdf.parse(date2));
+        return calendar2.get(Calendar.DAY_OF_YEAR) - calendar1.get(Calendar.DAY_OF_YEAR);
     }
 }
 
 class LinearRegression {
-    /*
-     * 训练数据示例：
-     *   x0        x1        x2        y
-        1.0       1.0       2.0       7.2
-        1.0       2.0       1.0       4.9
-        1.0       3.0       0.0       2.6
-        1.0       4.0       1.0       6.3
-        1.0       5.0      -1.0       1.0
-        1.0       6.0       0.0       4.7
-        1.0       7.0      -2.0      -0.6
-        注意！！！！x1，x2，y三列是用户实际输入的数据，x0是为了推导出来的公式统一，特地补上的一列。
-        x0,x1,x2是“特征”，y是结果
-        h(x) = theta0 * x0 + theta1* x1 + theta2 * x2
-        theta0,theta1,theta2 是想要训练出来的参数
-         此程序采用“梯度下降法”
-     *
-     */
-
     private double [][] trainData;//训练数据，一行一个数据，每一行最后一个数据为 y
     private int row;//训练数据  行数
     private int column;//训练数据 列数
-
     private double [] theta;//参数theta
 
     public double[][] getTrainData() {
@@ -166,7 +206,7 @@ class LinearRegression {
     private void initialize_theta()//将theta各个参数全部初始化为1.0
     {
         for(int i=0;i<theta.length;i++)
-            theta[i]=1.0;
+            theta[i]=0.5;
     }
 
     public void trainTheta()

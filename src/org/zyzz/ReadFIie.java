@@ -4,17 +4,15 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ReadFIie {
     public static void main(String[] args) {
-        ArrayList<double[]> dataList = loadDataFromFile("C:\\Users\\tanjie\\Desktop\\练习数据\\初赛文档\\练习数据\\201501-201505.txt");
+        ArrayList<double[]> dataList = loadDataFromFile("D:\\IdeaProjects\\HWRuanTiao\\src\\data\\TrainData.txt");
         for (int i=1;i<16;i++){
             double[][] dataArray = getFlavorArrayFromDataList(i,dataList.size()-1,dataList);
             System.out.print("flavor"+i+"\t");
@@ -40,14 +38,25 @@ public class ReadFIie {
                 String[] tempData = tempString.split("\t");
                 if (flag == 0) {
                     dataList.add(new double[16]);
-                    date = (tempData[2].split(" "))[0];
+                    date = tempData[2];
                     flag++;
                 }
-                if (tempData[2].contains(date)) {
+                int daysBtn = Main.calDaysBetween(date,tempData[2]);
+                if (daysBtn==0) {
                     ((dataList.get(day))[getFlavor(tempData[1])])++;
                 }
+                else if(daysBtn==1) {
+                    date = tempData[2];
+                    day++;
+                    dataList.add(new double[16]);
+                    (dataList.get(day))[getFlavor(tempData[1])]++;
+                }
                 else {
-                    date = (tempData[2].split(" "))[0];
+                    date = tempData[2];
+                    for (int i=0;i<daysBtn-1;i++) {
+                        day++;
+                        dataList.add(new double[16]);
+                    }
                     day++;
                     dataList.add(new double[16]);
                     (dataList.get(day))[getFlavor(tempData[1])]++;
@@ -93,4 +102,7 @@ public class ReadFIie {
         }
         return flavorData;
     }
+
+
+
 }
