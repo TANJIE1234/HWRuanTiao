@@ -14,11 +14,11 @@ import java.util.regex.Pattern;
 
 public class ReadFIie {
     public static void main(String[] args) {
-        ArrayList<double[]> dataList = loadDataFromFile("D:\\IdeaProjects\\HWRuanTiao\\src\\data\\TrainData.txt");
+        ArrayList<double[]> dataList = loadDataFromFile("C:\\Users\\tanjie\\Desktop\\练习数据\\初赛文档\\练习数据\\201501-201505.txt");
         for (int i=1;i<16;i++){
-            double[][] dataArray = getFlavorArrayFromDataList(i,41,dataList);
+            double[][] dataArray = getFlavorArrayFromDataList(i,dataList.size()-1,dataList);
             System.out.print("flavor"+i+"\t");
-            for (int j=1;j<43;j++){
+            for (int j=1;j<dataList.size()+1;j++){
                 System.out.print("\t"+dataArray[0][j]);
             }
             System.out.println();

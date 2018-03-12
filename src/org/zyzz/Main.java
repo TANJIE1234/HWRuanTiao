@@ -12,9 +12,9 @@ public class Main {
 //        List<double[]> dataList = ReadFIie.loadDataFromFile("D:\\IdeaProjects\\HWRuanTiao\\src\\data\\TrainData.txt");
         List<double[]> dataList = ReadFIie.loadDataFromFile("F:\\Java\\IdeaProjects\\HWRuanTiao\\src\\data\\TrainData.txt");
         int key = 0;
-        for (key=4;key<36;key++){
-            double[][] trainData = ReadFIie.getFlavorArrayFromDataList(14 , key, dataList);
-            LinearRegression m = new LinearRegression(trainData,0.001,10000000);
+        for (key=3;key<30;key++){
+            double[][] trainData = ReadFIie.getFlavorArrayFromDataList(14, key, dataList);
+            LinearRegression m = new LinearRegression(trainData,0.00001,100000);
 //            m.printTrainData();
             m.trainTheta();
 //            m.printTheta();
