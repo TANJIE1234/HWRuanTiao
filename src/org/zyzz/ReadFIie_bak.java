@@ -1,21 +1,17 @@
 package org.zyzz;
 
-import com.filetool.util.FileUtil;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ReadFIie {
+public class ReadFIie_bak {
     public static void main(String[] args) {
-        String[] StringDataArray = FileUtil.read("/home/tanjie/java/IdeaProjects/HWRuanTiao/src/data/TestData.txt", null);
-        ArrayList<double[]> dataList = loadDataFromStringArray(StringDataArray);
+        ArrayList<double[]> dataList = loadDataFromFile("/home/tanjie/java/IdeaProjects/HWRuanTiao/src/data/TestData.txt");
 //        ArrayList<double[]> dataList = loadDataFromFile("C:\\Users\\tanjie\\Desktop\\练习数据\\初赛文档\\练习数据\\201501-201505.txt");
 
         for (int i=1;i<16;i++){
@@ -29,41 +25,56 @@ public class ReadFIie {
         System.out.println();
     }
     //读取训练文件
-    public static ArrayList<double[]> loadDataFromStringArray(String[] dataArray) {
+    public static ArrayList<double[]> loadDataFromFile(String fileName) {
+        File file = new File(fileName);
+        BufferedReader reader = null;
         String date = null;
         int day = 0;
         int flag = 0;
         ArrayList<double[]> dataList = new ArrayList<>();
-        for (String tempString : dataArray) {
-            String[] tempData = tempString.split("\t");
-            if (flag == 0) {
-                dataList.add(new double[16]);
-                date = tempData[2];
-                flag++;
-            }
-            int daysBtn = Main.calDaysBetween(date,tempData[2]);
-            if (daysBtn==0) {
-                ((dataList.get(day))[getFlavor(tempData[1])])++;
-            }
-            else if(daysBtn==1) {
-                date = tempData[2];
-                day++;
-                dataList.add(new double[16]);
-                (dataList.get(day))[getFlavor(tempData[1])]++;
-            }
-            else {
-                date = tempData[2];
-                for (int i=0;i<daysBtn-1;i++) {
+        try {
+            reader = new BufferedReader(new FileReader(file));
+            String tempString = null;
+            while ((tempString = reader.readLine()) != null) {
+                String[] tempData = tempString.split("\t");
+                if (flag == 0) {
+                    dataList.add(new double[16]);
+                    date = tempData[2];
+                    flag++;
+                }
+                int daysBtn = Main.calDaysBetween(date,tempData[2]);
+                if (daysBtn==0) {
+                    ((dataList.get(day))[getFlavor(tempData[1])])++;
+                }
+                else if(daysBtn==1) {
+                    date = tempData[2];
                     day++;
                     dataList.add(new double[16]);
+                    (dataList.get(day))[getFlavor(tempData[1])]++;
                 }
-                day++;
-                dataList.add(new double[16]);
-                (dataList.get(day))[getFlavor(tempData[1])]++;
+                else {
+                    date = tempData[2];
+                    for (int i=0;i<daysBtn-1;i++) {
+                        day++;
+                        dataList.add(new double[16]);
+                    }
+                    day++;
+                    dataList.add(new double[16]);
+                    (dataList.get(day))[getFlavor(tempData[1])]++;
+                }
             }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e1) {
+                }
+            }
+            return dataList;
         }
-
-        return dataList;
     }
     //读取虚拟机flavor号
     public static int getFlavor(String s) {

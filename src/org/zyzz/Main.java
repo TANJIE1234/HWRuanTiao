@@ -1,5 +1,7 @@
 package org.zyzz;
 
+import com.filetool.util.FileUtil;
+
 import javax.print.attribute.standard.PrinterLocation;
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,7 +49,7 @@ public class Main {
     public static int[] predict(int flavor, int days) {
         int key = 20;
         List<double[]> dataList = new ArrayList<>();
-        dataList = ReadFIie.loadDataFromFile("D:\\IdeaProjects\\HWRuanTiao\\src\\data\\TrainData.txt");
+        dataList = ReadFIie.loadDataFromStringArray(FileUtil.read("/home/tanjie/java/IdeaProjects/HWRuanTiao/src/data/TrainData.txt", null));
         double alpha = 0.0001;
         int iteration = 200000;
         double[][] trainData = ReadFIie.getFlavorArrayFromDataList(flavor, key, dataList);
@@ -76,12 +78,16 @@ public class Main {
         return result_int;
     }
 
-    public static int calDaysBetween(String date1, String date2) throws ParseException {
+    public static int calDaysBetween(String date1, String date2) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Calendar calendar1 = Calendar.getInstance();
         Calendar calendar2 = Calendar.getInstance();
-        calendar1.setTime(sdf.parse(date1));
-        calendar2.setTime(sdf.parse(date2));
+        try {
+            calendar1.setTime(sdf.parse(date1));
+            calendar2.setTime(sdf.parse(date2));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
         return calendar2.get(Calendar.DAY_OF_YEAR) - calendar1.get(Calendar.DAY_OF_YEAR);
     }
 }
