@@ -49,7 +49,9 @@ public class Main {
     public static int[] predict(int flavor, int days) {
         int key = 20;
         List<double[]> dataList = new ArrayList<>();
-        dataList = ReadFIie.loadDataFromStringArray(FileUtil.read("/home/tanjie/java/IdeaProjects/HWRuanTiao/src/data/TrainData.txt", null));
+        //dataList = ReadFIie.loadDataFromStringArray(FileUtil.read("/home/tanjie/java/IdeaProjects/HWRuanTiao/src/data/TrainData.txt", null));
+        dataList = ReadFIie.loadDataFromStringArray(FileUtil.read("D:\\IdeaProjects\\HWRuanTiao\\src\\data\\TrainData.txt", null));
+
         double alpha = 0.0001;
         int iteration = 200000;
         double[][] trainData = ReadFIie.getFlavorArrayFromDataList(flavor, key, dataList);
